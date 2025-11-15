@@ -16,14 +16,21 @@
   <div class="photobooth-container" id="booth">
     <div class="bubble-container"></div>
     <div class="countdown-timer">3</div>
+
     <canvas id="finalCanvas" width="1176" height="1470"></canvas>
+
     <video id="liveVideo" autoplay playsinline muted></video>
-    <!-- Frame overlay - src will be set by JavaScript -->
+
+    <!-- Frame overlay -->
     <img class="frame-overlay" id="frameOverlay" alt="frame overlay" />
   </div>
 
   <div class="controls">
     <button id="takePhoto">Capture</button>
+
+    <!-- 👇 Nút toggle camera MỚI -->
+    <button id="toggleCamera">Switch Camera</button>
+
     <button id="readyButton" disabled style="display: none;">Ready</button>
   </div>
 
@@ -37,8 +44,10 @@
       }
     })();
   </script>
+
   <script src="Javascripts/camera.js"></script>
   <script src="Javascripts/bubbles.js"></script>
+
 </body>
 
 </html>

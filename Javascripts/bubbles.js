@@ -3,14 +3,15 @@ const bubbleContainer = document.querySelector(".bubble-container");
 
 // get images
 const bubbleImages = [
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble4.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble1.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble2.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble3.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble4.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble5.png",
-  "../Assets/fish-photobooth/camerapage/bubbles/bubble4.png"
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble4.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble1.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble2.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble3.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble4.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble5.png",
+  "/Assets/fish-photobooth/camerapage/bubbles/bubble4.png"
 ];
+
 
 // create bubble
 const createBubble = () => {
