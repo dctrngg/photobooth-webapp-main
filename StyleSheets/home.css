@@ -23,11 +23,11 @@
 body {
   background-color: var(--main-background);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  padding: 1rem 0 2rem 0;
-  gap: 0;
+  justify-content: center; /* căn giữa ngang */
+  align-items: center;     /* căn giữa dọc */
+  height: 100vh;           /* đảm bảo chiều cao toàn màn hình */
+  margin: 0;
+  padding: 0;
 }
 
 /* logo */
@@ -46,27 +46,30 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 37.75rem;
-  gap: 0.5rem;
-  margin-top: 0;
-  padding-top: 0;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .photobooth-container {
   position: relative;
-  width: var(--container-width);
-  aspect-ratio: var(--container-aspect-ratio);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  overflow: visible; /* <-- FIX */
-  margin-top: 2vh;
+  width: 90vw;
+  max-width: 900px;
+  aspect-ratio: 604 / 574;
+  overflow: visible;
+  flex-shrink: 0;
 }
-
 @media screen and (max-width: 768px) {
   .photobooth-container {
-    width: 90vw;
+    width: 85vw;
+    max-width: none;
+  }
+  
+  .home-container {
+    gap: 0.5rem;
+    padding: 0.5rem;
   }
 }
 
@@ -177,6 +180,7 @@ body {
 /* button styling */
 .button-container {
   margin-top: 0;
+  flex-shrink: 0;
 }
 
 button {
@@ -228,4 +232,29 @@ button:hover {
   button {
     font-size: 1.5rem;
   }
+}
+
+
+/* Prevent screen overflow */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* KHÔNG CHO SCROLL */
+}
+
+/* Wrapper để scale toàn bộ photobooth */
+.photobooth-scale-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Scale theo chiều phù hợp để KHÔNG bị vượt */
+.photobooth-container {
+  transform-origin: center;
+  transform: scale(var(--scale-factor));
 }
