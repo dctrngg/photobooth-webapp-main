@@ -1,75 +1,79 @@
-// constants
+// ======================================================
+// CONSTANTS
+// ======================================================
 const WIDTH = 1176, HEIGHT = 1470, HALF = HEIGHT / 2;
 
 // Get selected frame
-const selectedFramePath = localStorage.getItem('selectedFramePath') || 'Assets/fish-photobooth/camerapage/teky.png';
+const selectedFramePath =
+  localStorage.getItem("selectedFramePath") ||
+  "Assets/fish-photobooth/camerapage/teky.png";
 
-// dom elements
+// DOM elements
 const elements = {
-  video: document.getElementById('liveVideo'),
-  canvas: document.getElementById('finalCanvas'),
-  ctx: document.getElementById('finalCanvas').getContext('2d'),
-  takePhotoBtn: document.getElementById('takePhoto'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  toggleCameraBtn: document.getElementById('toggleCamera'),
-  countdownEl: document.querySelector('.countdown-timer')
+  video: document.getElementById("liveVideo"),
+  canvas: document.getElementById("finalCanvas"),
+  ctx: document.getElementById("finalCanvas").getContext("2d"),
+  takePhotoBtn: document.getElementById("takePhoto"),
+  toggleCameraBtn: document.getElementById("toggleCamera"),
+  countdownEl: document.querySelector(".countdown-timer"),
 };
 
 let photoStage = 0; // 0=top,1=bottom,2=done
-let currentFacing = "user"; // default: front camera
+let currentFacing = "user"; // "user" = front, "environment" = back
 let stream = null;
 
-// =======================
-// Move video to half
-// =======================
-const moveVideoToHalf = i => {
+// ======================================================
+// Move video to top/bottom half
+// ======================================================
+const moveVideoToHalf = (i) => {
   const { video } = elements;
-  video.style.display = 'block';
-  video.style.top = i === 0 ? '0' : '50%';
-  video.style.left = '0';
-  video.style.width = '100%';
-  video.style.height = '50%';
+  video.style.display = "block";
+  video.style.top = i === 0 ? "0" : "50%";
+  video.style.left = "0";
+  video.style.width = "100%";
+  video.style.height = "50%";
 };
 
-// =======================
-// Countdown
-// =======================
-const startCountdown = callback => {
+// ======================================================
+// Countdown timer
+// ======================================================
+const startCountdown = (callback) => {
   let count = 3;
-  const { countdownEl } = elements;
-  countdownEl.textContent = count;
-  countdownEl.style.display = 'flex';
+  elements.countdownEl.textContent = count;
+  elements.countdownEl.style.display = "flex";
 
   const intervalId = setInterval(() => {
     count--;
-    if (count > 0) countdownEl.textContent = count;
+    if (count > 0) elements.countdownEl.textContent = count;
     else {
       clearInterval(intervalId);
-      countdownEl.style.display = 'none';
+      elements.countdownEl.style.display = "none";
       callback();
     }
   }, 1000);
 };
 
-// =======================
-// Capture photo
-// =======================
+// ======================================================
+// Capture photo into canvas
+// ======================================================
 const capturePhoto = () => {
   const { video, ctx } = elements;
 
-  const yOffset = photoStage === 0 ? 0 : HALF;
   const vW = video.videoWidth;
   const vH = video.videoHeight;
 
   if (vW === 0 || vH === 0) {
-    console.warn("Video not ready!");
+    console.warn("Video not ready.");
     return;
   }
+
+  const yOffset = photoStage === 0 ? 0 : HALF;
 
   const targetAspect = WIDTH / HALF;
   const vAspect = vW / vH;
 
   let sx, sy, sw, sh;
+
   if (vAspect > targetAspect) {
     sh = vH;
     sw = vH * targetAspect;
@@ -82,10 +86,10 @@ const capturePhoto = () => {
     sy = (vH - sh) / 2;
   }
 
-  // No flip here — flip is via CSS
   ctx.drawImage(video, sx, sy, sw, sh, 0, yOffset, WIDTH, HALF);
 
   photoStage++;
+
   if (photoStage === 1) {
     moveVideoToHalf(1);
     elements.takePhotoBtn.disabled = false;
@@ -94,108 +98,99 @@ const capturePhoto = () => {
   }
 };
 
-// =======================
-// Final photo strip
-// =======================
+// ======================================================
+// Finalize photostrip
+// ======================================================
 const finalizePhotoStrip = () => {
   const { video, ctx, canvas } = elements;
 
-  video.style.display = 'none';
+  video.style.display = "none";
+
   const frame = new Image();
   frame.src = selectedFramePath;
 
   frame.onload = () => {
     ctx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
-    localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
-    setTimeout(() => window.location.href = 'final.html', 50);
+    localStorage.setItem("photoStrip", canvas.toDataURL("image/png"));
+    setTimeout(() => (window.location.href = "final.html"), 50);
   };
 
   if (frame.complete) frame.onload();
 };
 
-// =======================
-// Download photo
-// =======================
-const downloadPhoto = () => {
-  elements.canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'photo-strip.png';
-    a.click();
-  }, 'image/png');
-};
-
-// =======================
-// Setup camera
-// =======================
+// ======================================================
+// Setup camera (FIXED FOR IOS + ANDROID)
+// ======================================================
 const setupCamera = async () => {
+  // Stop old stream
   if (stream) {
-    stream.getTracks().forEach(t => t.stop());
+    stream.getTracks().forEach((track) => track.stop());
+    elements.video.srcObject = null;
   }
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    const constraints = {
       video: {
-        facingMode: { ideal: currentFacing },
+        facingMode: currentFacing, // Safari requires DIRECT string
         width: { ideal: 1920 },
-        height: { ideal: 1080 }
+        height: { ideal: 1080 },
       },
-      audio: false
-    });
+      audio: false,
+    };
+
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
 
     elements.video.srcObject = stream;
 
-    // Wait until metadata loads (mobile fix)
     elements.video.onloadedmetadata = () => {
       elements.video.play();
+
+      // Flip only front camera
+      if (currentFacing === "user") {
+        elements.video.style.transform = "scaleX(-1)";
+      } else {
+        elements.video.style.transform = "scaleX(1)";
+      }
+
       moveVideoToHalf(photoStage === 0 ? 0 : 1);
     };
-
   } catch (err) {
     alert("Camera error: " + err);
   }
 };
 
-// =======================
-// Toggle Camera Front/Back
-// =======================
+// ======================================================
+// Toggle camera (front/back)
+// ======================================================
 const toggleCamera = () => {
   currentFacing = currentFacing === "user" ? "environment" : "user";
   setupCamera();
 };
 
-// =======================
-// Event Listeners
-// =======================
+// ======================================================
+// Event listeners
+// ======================================================
 const setupEventListeners = () => {
-  const { takePhotoBtn, downloadBtn, toggleCameraBtn } = elements;
+  const { takePhotoBtn, toggleCameraBtn } = elements;
 
-  takePhotoBtn.addEventListener('click', () => {
+  takePhotoBtn.addEventListener("click", () => {
     if (photoStage > 1) return;
+
     takePhotoBtn.disabled = true;
     startCountdown(capturePhoto);
   });
 
-  downloadBtn.addEventListener('click', downloadPhoto);
-  toggleCameraBtn.addEventListener('click', toggleCamera);
+  toggleCameraBtn.addEventListener("click", toggleCamera);
 
-  window.addEventListener('resize', () => {
-    moveVideoToHalf(photoStage);
-  });
+  window.addEventListener("resize", () => moveVideoToHalf(photoStage));
 };
 
-// =======================
+// ======================================================
 // Init
-// =======================
+// ======================================================
 const initPhotoBooth = () => {
   setupCamera();
   setupEventListeners();
 };
 
 initPhotoBooth();
-
-// redirect on logo
-document.addEventListener('DOMContentLoaded', () => {
-  const logo = document.querySelector('.logo');
-  if (logo) logo.addEventListener('click', () => window.location.href = 'index.html');
-});
