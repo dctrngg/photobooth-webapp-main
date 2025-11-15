@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="StyleSheets/home.css" />
+  <style>
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      width: 90%;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: white;
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .frame-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .frame-option {
+      cursor: pointer;
+      border: 3px solid transparent;
+      border-radius: 10px;
+      padding: 10px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .frame-option:hover {
+      border-color: #4CAF50;
+      transform: scale(1.05);
+    }
+
+    .frame-option.selected {
+      border-color: #FFD700;
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    .frame-option.selected::after {
+      content: "✓";
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #FFD700;
+      color: #000;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .frame-option img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 5px;
+    }
+
+    .frame-option p {
+      text-align: center;
+      margin-top: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-actions button {
+      padding: 12px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .confirm-btn {
+      background: #4CAF50;
+      color: white;
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .confirm-btn:hover:not(:disabled) {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+    .confirm-btn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .cancel-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Scrollbar styling */
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="menu-container">
+    <div class="menu-header"></div>
+    <button id="menu-camera-button">Take photos</button>
+    <button id="menu-upload-button">Upload photos</button>
+  </div>
+
+  <!-- Frame Selection Modal -->
+  <div id="frameModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Choose Your Frame</h2>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+
+      <div class="frame-grid" id="frameGrid">
+        <!-- Frames will be dynamically added here -->
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" id="cancelBtn">Cancel</button>
+        <button class="confirm-btn" id="confirmBtn" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Frame data
+    const frames = [
+      { id: 'teky', name: 'Teky Frame', path: 'Assets/fish-photobooth/camerapage/teky.png' },
+      { id: 'ocean', name: 'Ocean Frame', path: 'Assets/fish-photobooth/camerapage/frame.png' },
+    ];
+
+    // Modal elements
+    const modal = document.getElementById('frameModal');
+    const frameGrid = document.getElementById('frameGrid');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const closeModal = document.getElementById('closeModal');
+
+    let selectedFrame = localStorage.getItem('selectedFrame') || null;
+    let nextPage = null;
+
+    // Render frames
+    function renderFrames() {
+      frameGrid.innerHTML = '';
+      frames.forEach(frame => {
+        const div = document.createElement('div');
+        div.className = 'frame-option';
+        if (frame.id === selectedFrame) {
+          div.classList.add('selected');
+        }
+
+        div.innerHTML = `
+          <img src="${frame.path}" alt="${frame.name}">
+          <p>${frame.name}</p>
+        `;
+
+        div.addEventListener('click', () => {
+          document.querySelectorAll('.frame-option').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedFrame = frame.id;
+          confirmBtn.disabled = false;
+        });
+
+        frameGrid.appendChild(div);
+      });
+
+      // Enable confirm button if frame already selected
+      if (selectedFrame) {
+        confirmBtn.disabled = false;
+      }
+    }
+
+    // Show modal
+    function showModal(destination) {
+      nextPage = destination;
+      renderFrames();
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Hide modal
+    function hideModal() {
+      modal.classList.remove('show');
+      document.body.style.overflow = '';
+      selectedFrame = localStorage.getItem('selectedFrame') || null;
+    }
+
+    // Camera button
+    document.getElementById('menu-camera-button').addEventListener('click', () => {
+      showModal('camera.html');
+    });
+
+    // Upload button
+    document.getElementById('menu-upload-button').addEventListener('click', () => {
+      showModal('upload.html');
+    });
+
+    // Confirm button
+    confirmBtn.addEventListener('click', () => {
+      if (selectedFrame && nextPage) {
+        const selectedFrameData = frames.find(f => f.id === selectedFrame);
+        localStorage.setItem('selectedFrame', selectedFrame);
+        localStorage.setItem('selectedFramePath', selectedFrameData.path);
+        window.location.href = nextPage;
+      }
+    });
+
+    // Cancel/Close buttons
+    cancelBtn.addEventListener('click', hideModal);
+    closeModal.addEventListener('click', hideModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideModal();
+      }
+    });
+
+    // ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('show')) {
+        hideModal();
+      }
+    });
+
+    // Logo redirect (if exists)
+    document.addEventListener('DOMContentLoaded', () => {
+      const logo = document.querySelector('.logo');
+      if (logo) logo.addEventListener('click', () => window.location.href = 'index.html');
+    });
+  </script>
+</body>
+
+</html>

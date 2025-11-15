@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="StyleSheets/camera.css" />
+</head>
+
+<body>
+
+  <div class="photobooth-container" id="booth">
+    <div class="bubble-container"></div>
+    <div class="countdown-timer">3</div>
+    <canvas id="finalCanvas" width="1176" height="1470"></canvas>
+    <video id="liveVideo" autoplay playsinline muted></video>
+    <!-- Frame overlay - src will be set by JavaScript -->
+    <img class="frame-overlay" id="frameOverlay" alt="frame overlay" />
+  </div>
+
+  <div class="controls">
+    <button id="takePhoto">Capture</button>
+    <button id="readyButton" disabled style="display: none;">Ready</button>
+  </div>
+
+  <script>
+    // Set frame overlay from localStorage before loading other scripts
+    (function () {
+      const selectedFramePath = localStorage.getItem('selectedFramePath') || 'Assets/fish-photobooth/camerapage/teky.png';
+      const frameOverlay = document.getElementById('frameOverlay');
+      if (frameOverlay) {
+        frameOverlay.src = selectedFramePath;
+      }
+    })();
+  </script>
+  <script src="Javascripts/camera.js"></script>
+  <script src="Javascripts/bubbles.js"></script>
+</body>
+
+</html>
