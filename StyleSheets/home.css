@@ -56,7 +56,7 @@ body {
 .photobooth-container {
   position: relative;
   width: 90vw;
-  max-width: 900px;
+  max-width: 1000px;
   aspect-ratio: 604 / 574;
   overflow: visible;
   flex-shrink: 0;

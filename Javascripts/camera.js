@@ -11,12 +11,17 @@ const elements = {
   ctx: document.getElementById('finalCanvas').getContext('2d'),
   takePhotoBtn: document.getElementById('takePhoto'),
   downloadBtn: document.getElementById('downloadBtn'),
+  toggleCameraBtn: document.getElementById('toggleCamera'),
   countdownEl: document.querySelector('.countdown-timer')
 };
 
 let photoStage = 0; // 0=top,1=bottom,2=done
+let currentFacing = "user"; // default: front camera
+let stream = null;
 
-// move video to half
+// =======================
+// Move video to half
+// =======================
 const moveVideoToHalf = i => {
   const { video } = elements;
   video.style.display = 'block';
@@ -26,12 +31,15 @@ const moveVideoToHalf = i => {
   video.style.height = '50%';
 };
 
-// countdown
+// =======================
+// Countdown
+// =======================
 const startCountdown = callback => {
   let count = 3;
   const { countdownEl } = elements;
   countdownEl.textContent = count;
   countdownEl.style.display = 'flex';
+
   const intervalId = setInterval(() => {
     count--;
     if (count > 0) countdownEl.textContent = count;
@@ -43,43 +51,71 @@ const startCountdown = callback => {
   }, 1000);
 };
 
-// capture photo
+// =======================
+// Capture photo
+// =======================
 const capturePhoto = () => {
-  const { video, ctx, takePhotoBtn } = elements;
+  const { video, ctx } = elements;
+
   const yOffset = photoStage === 0 ? 0 : HALF;
-  const vW = video.videoWidth, vH = video.videoHeight;
-  const targetAspect = WIDTH / HALF, vAspect = vW / vH;
+  const vW = video.videoWidth;
+  const vH = video.videoHeight;
+
+  if (vW === 0 || vH === 0) {
+    console.warn("Video not ready!");
+    return;
+  }
+
+  const targetAspect = WIDTH / HALF;
+  const vAspect = vW / vH;
+
   let sx, sy, sw, sh;
+  if (vAspect > targetAspect) {
+    sh = vH;
+    sw = vH * targetAspect;
+    sx = (vW - sw) / 2;
+    sy = 0;
+  } else {
+    sw = vW;
+    sh = vW / targetAspect;
+    sx = 0;
+    sy = (vH - sh) / 2;
+  }
 
-  if (vAspect > targetAspect) { sh = vH; sw = vH * targetAspect; sx = (vW - sw) / 2; sy = 0; }
-  else { sw = vW; sh = vW / targetAspect; sx = 0; sy = (vH - sh) / 2; }
-
-  ctx.save();
-  ctx.translate(WIDTH, 0);
-  ctx.scale(-1, 1);
+  // No flip here — flip is via CSS
   ctx.drawImage(video, sx, sy, sw, sh, 0, yOffset, WIDTH, HALF);
-  ctx.restore();
 
   photoStage++;
-  if (photoStage === 1) { moveVideoToHalf(1); takePhotoBtn.disabled = false; }
-  else if (photoStage === 2) finalizePhotoStrip();
+  if (photoStage === 1) {
+    moveVideoToHalf(1);
+    elements.takePhotoBtn.disabled = false;
+  } else if (photoStage === 2) {
+    finalizePhotoStrip();
+  }
 };
 
-// finalize photo strip
+// =======================
+// Final photo strip
+// =======================
 const finalizePhotoStrip = () => {
   const { video, ctx, canvas } = elements;
+
   video.style.display = 'none';
   const frame = new Image();
-  frame.src = selectedFramePath; // Use selected frame
+  frame.src = selectedFramePath;
+
   frame.onload = () => {
     ctx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
     localStorage.setItem('photoStrip', canvas.toDataURL('image/png'));
     setTimeout(() => window.location.href = 'final.html', 50);
   };
-  frame.complete && frame.onload();
+
+  if (frame.complete) frame.onload();
 };
 
-// download photo
+// =======================
+// Download photo
+// =======================
 const downloadPhoto = () => {
   elements.canvas.toBlob(blob => {
     const a = document.createElement('a');
@@ -89,16 +125,50 @@ const downloadPhoto = () => {
   }, 'image/png');
 };
 
-// setup camera
-const setupCamera = () => {
-  navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 2560 }, height: { ideal: 1440 }, facingMode: 'user' }, audio: false })
-    .then(stream => { elements.video.srcObject = stream; elements.video.play(); moveVideoToHalf(0); })
-    .catch(err => alert('Camera access failed: ' + err));
+// =======================
+// Setup camera
+// =======================
+const setupCamera = async () => {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: currentFacing },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+
+    elements.video.srcObject = stream;
+
+    // Wait until metadata loads (mobile fix)
+    elements.video.onloadedmetadata = () => {
+      elements.video.play();
+      moveVideoToHalf(photoStage === 0 ? 0 : 1);
+    };
+
+  } catch (err) {
+    alert("Camera error: " + err);
+  }
 };
 
-// setup events
+// =======================
+// Toggle Camera Front/Back
+// =======================
+const toggleCamera = () => {
+  currentFacing = currentFacing === "user" ? "environment" : "user";
+  setupCamera();
+};
+
+// =======================
+// Event Listeners
+// =======================
 const setupEventListeners = () => {
-  const { takePhotoBtn, downloadBtn } = elements;
+  const { takePhotoBtn, downloadBtn, toggleCameraBtn } = elements;
 
   takePhotoBtn.addEventListener('click', () => {
     if (photoStage > 1) return;
@@ -107,17 +177,24 @@ const setupEventListeners = () => {
   });
 
   downloadBtn.addEventListener('click', downloadPhoto);
+  toggleCameraBtn.addEventListener('click', toggleCamera);
+
   window.addEventListener('resize', () => {
-    if (photoStage === 0) moveVideoToHalf(0);
-    else if (photoStage === 1) moveVideoToHalf(1);
+    moveVideoToHalf(photoStage);
   });
 };
 
-// initialize photo booth
-const initPhotoBooth = () => { setupCamera(); setupEventListeners(); };
+// =======================
+// Init
+// =======================
+const initPhotoBooth = () => {
+  setupCamera();
+  setupEventListeners();
+};
+
 initPhotoBooth();
 
-// logo redirect
+// redirect on logo
 document.addEventListener('DOMContentLoaded', () => {
   const logo = document.querySelector('.logo');
   if (logo) logo.addEventListener('click', () => window.location.href = 'index.html');
