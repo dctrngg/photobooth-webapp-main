@@ -168,8 +168,10 @@ function addSafeNavigation(button, url, id) {
   });
 }
 
-// animation for select button
+// animation for select button - ONLY HOVER, NOT CLICK
 if (selectButton) {
+  // REMOVED CLICK EVENT - Will be handled in index.html
+  
   ['mouseenter', 'mousedown'].forEach(evt =>
     selectButton.addEventListener(evt, () => {
       startBubbleAnimation();
@@ -187,8 +189,7 @@ if (selectButton) {
   );
 }
 
-// add more safe nav
-addSafeNavigation(selectButton, 'menu.html');
+// add more safe nav for other buttons (NOT select button)
 addSafeNavigation(cameraBtn, 'camera.html');
 addSafeNavigation(uploadBtn, 'upload.html');
 addSafeNavigation(logoEl, 'index.html', 'logo');

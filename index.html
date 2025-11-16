@@ -9,13 +9,203 @@
   <!-- Favicon -->
   <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
   <link rel="stylesheet" href="StyleSheets/home.css" />
+  
+  <style>
+    /* Override overflow để modal có thể hiển thị */
+    html, body {
+      overflow: visible !important;
+    }
+
+    /* Modal Styles */
+    .tutorial-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .tutorial-modal.show {
+      display: flex !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s ease;
+      position: relative;
+      margin: 20px;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .modal-header h2 {
+      font-family: 'Castoro', serif;
+      font-size: 32px;
+      color: white;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-body {
+      color: white;
+      font-family: 'Castoro', serif;
+      line-height: 1.8;
+    }
+
+    .tutorial-step {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .tutorial-step:hover {
+      transform: translateX(5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .tutorial-step strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #ffd700;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      padding: 15px 40px;
+      font-family: 'Castoro', serif;
+      font-size: 18px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(56, 239, 125, 0.6);
+    }
+
+    .btn-skip {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-skip:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      line-height: 1;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    @media (max-width: 600px) {
+      .modal-content {
+        padding: 30px 20px;
+        margin: 10px;
+        max-height: 95vh;
+      }
+
+      .modal-header h2 {
+        font-size: 24px;
+      }
+
+      .tutorial-step {
+        padding: 12px 15px;
+      }
+
+      .tutorial-step strong {
+        font-size: 16px;
+      }
+
+      .modal-btn {
+        padding: 12px 30px;
+        font-size: 16px;
+      }
+
+      .modal-buttons {
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <!-- <div class="logo">
-    <img src="Assets/fish-photobooth/logo-new.png" alt="Logo">
-  </div> -->
-
   <!-- Main Container -->
   <div class="home-container">
     <div class="photobooth-container">
@@ -32,10 +222,180 @@
     </div>
   </div>
 
+  <!-- Tutorial Modal -->
+  <div class="tutorial-modal" id="tutorialModal">
+    <div class="modal-content">
+      <button class="close-modal" id="closeModal">&times;</button>
+      
+      <div class="modal-header">
+        <h2>🐠 Hướng Dẫn Sử Dụng</h2>
+      </div>
 
+      <div class="modal-body">
+        <div class="tutorial-step">
+          <strong>📸 Bước 1: Chọn Chế Độ</strong>
+          Chọn Camera để chụp ảnh trực tiếp hoặc Upload để tải ảnh có sẵn
+        </div>
 
-  <!-- Main JS -->
+        <div class="tutorial-step">
+          <strong>🎨 Bước 2: Tạo Photo Strip</strong>
+          Chụp 2 ảnh hoặc upload 2 ảnh để tạo photo strip của bạn
+        </div>
+
+        <div class="tutorial-step">
+          <strong>✨ Bước 3: Trang Trí</strong>
+          Thêm sticker, điều chỉnh kích thước và xoay để trang trí ảnh
+        </div>
+
+        <div class="tutorial-step">
+          <strong>💾 Bước 4: Chia Sẻ</strong>
+          Tải xuống hoặc tạo QR code để chia sẻ với bạn bè
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="modal-btn btn-start" id="startBtn">Bắt Đầu</button>
+        <button class="modal-btn btn-skip" id="skipBtn">Bỏ Qua</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JS - LOAD FIRST -->
   <script src="Javascripts/home.js"></script>
+  
+  <!-- Responsive Scaling Script -->
+  <script>
+    function adjustScale() {
+      const container = document.querySelector('.photobooth-container');
+      if (!container) return;
+      
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
+      // Get container dimensions
+      const containerAspectRatio = 604 / 574;
+      let containerWidth = Math.min(windowWidth * 0.9, 1000);
+      let containerHeight = containerWidth / containerAspectRatio;
+      
+      // Check if height exceeds available space
+      const availableHeight = windowHeight - 150; // Leave space for button
+      if (containerHeight > availableHeight) {
+        containerHeight = availableHeight;
+        containerWidth = containerHeight * containerAspectRatio;
+      }
+      
+      // Apply scale
+      const scaleX = containerWidth / 1000;
+      const scaleY = containerHeight / (1000 / containerAspectRatio);
+      const scale = Math.min(scaleX, scaleY, 1);
+      
+      document.documentElement.style.setProperty('--scale-factor', scale);
+    }
+    
+    // Run on load and resize
+    window.addEventListener('load', adjustScale);
+    window.addEventListener('resize', adjustScale);
+    adjustScale();
+  </script>
+  
+  <!-- Modal JS - LOAD AFTER home.js -->
+  <script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing modal...');
+      
+      // Modal functionality
+      const modal = document.getElementById('tutorialModal');
+      const selectButton = document.getElementById('select-button');
+      const startBtn = document.getElementById('startBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      const closeModalBtn = document.getElementById('closeModal');
+
+      console.log('Modal element:', modal);
+      console.log('Select button:', selectButton);
+
+      // Show modal when Select button is clicked
+      if (selectButton) {
+        // Remove any existing click listeners by cloning
+        const newSelectButton = selectButton.cloneNode(true);
+        selectButton.parentNode.replaceChild(newSelectButton, selectButton);
+        
+        // Add new click listener
+        newSelectButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Select button clicked!');
+          
+          if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+            console.log('Modal should be visible now');
+          }
+        }, true); // Use capture phase
+        
+        console.log('Click listener attached to select button');
+      }
+
+      // Go to menu page
+      function goToMenu() {
+        console.log('Going to menu...');
+        if (typeof gtag === 'function') {
+          gtag('event', 'tutorial_complete', {
+            button_id: 'tutorial-modal'
+          });
+        }
+        window.location.href = 'menu.html';
+      }
+
+      // Start button - go to menu
+      if (startBtn) {
+        startBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Start button clicked');
+          goToMenu();
+        });
+      }
+
+      // Skip button - go to menu
+      if (skipBtn) {
+        skipBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Skip button clicked');
+          goToMenu();
+        });
+      }
+
+      // Close button
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Close button clicked');
+          modal.classList.remove('show');
+          modal.style.display = 'none';
+        });
+      }
+
+      // Close modal when clicking outside
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            console.log('Clicked outside modal');
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+          }
+        });
+      }
+
+      // Close modal with ESC key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+          console.log('ESC key pressed');
+          modal.classList.remove('show');
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>

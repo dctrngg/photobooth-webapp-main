@@ -11,6 +11,8 @@
   --fish-rotation: 7.52deg;
   --strip-rotation: 16.52deg;
   --bubble-rotation: -16.52deg;
+  
+  --scale-factor: 1;
 }
 
 /* body */
@@ -20,14 +22,22 @@
   padding: 0;
 }
 
+html {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 body {
   background-color: var(--main-background);
   display: flex;
-  justify-content: center; /* căn giữa ngang */
-  align-items: center;     /* căn giữa dọc */
-  height: 100vh;           /* đảm bảo chiều cao toàn màn hình */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* logo */
@@ -48,22 +58,67 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100vh;
-  gap: 1rem;
-  padding: 1rem;
+  min-height: 100vh;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
 }
 
 .photobooth-container {
   position: relative;
   width: 90vw;
-  max-width: 1000px;
+  max-width: 800px;
   aspect-ratio: 604 / 574;
   overflow: visible;
   flex-shrink: 0;
+  transform-origin: center;
+  transform: scale(var(--scale-factor));
+  transition: transform 0.3s ease;
 }
+
+/* Responsive breakpoints */
+@media screen and (max-width: 1400px) {
+  .photobooth-container {
+    max-width: 700px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .photobooth-container {
+    max-width: 600px;
+  }
+  
+  .home-container {
+    gap: 1.2rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .photobooth-container {
+    max-width: 500px;
+  }
+  
+  .home-container {
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .photobooth-container {
     width: 85vw;
+    max-width: 450px;
+  }
+  
+  .home-container {
+    gap: 0.8rem;
+    padding: 1rem 0.5rem;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .photobooth-container {
+    width: 90vw;
     max-width: none;
   }
   
@@ -121,8 +176,6 @@ body {
   transition: opacity 0.3s ease-in-out;
   opacity: 1;
 }
-
-
 
 /* photostrip */
 .photostrip-mock {
@@ -193,10 +246,15 @@ button {
   border-radius: 0.5rem;
   text-align: center;
   transition: transform 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 button:hover {
   transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 #select-button {
@@ -223,38 +281,21 @@ button:hover {
 @media screen and (max-width: 768px) {
   #select-button {
     width: 8rem;
-    height: 3.2rem;
+    height: 2.8rem;
     font-size: 1.2rem;
     padding: 0.4rem 0.5rem;
     gap: 0.4rem;
   }
 
   button {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
 }
 
-
-/* Prevent screen overflow */
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* KHÔNG CHO SCROLL */
-}
-
-/* Wrapper để scale toàn bộ photobooth */
-.photobooth-scale-wrapper {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Scale theo chiều phù hợp để KHÔNG bị vượt */
-.photobooth-container {
-  transform-origin: center;
-  transform: scale(var(--scale-factor));
+@media screen and (max-width: 576px) {
+  #select-button {
+    width: 7rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+  }
 }
