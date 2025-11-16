@@ -6,7 +6,7 @@ const BUBBLE_FRAMES = [
 ];
 
 const PHOTOBOOTH_FRAMES = Array.from({ length: 16 }, (_, i) =>
-  `Assets/fish-photobooth/homepage/animated-photobooth-mock/${i + 1}.jpg`
+  `Assets/fish-photobooth/homepage/animated-photobooth-mock/${i + 1}.webp`
 );
 
 const PHOTOBOOTH_FRAME_INTERVAL = 200;
