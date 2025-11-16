@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module" crossorigin src=".\dist\assets\index-DeNZ40cR.js"></script>
+    <link rel="stylesheet" crossorigin href=".\dist\assets\index-k0w17b8q.css">
+  </head>
+  <body>
+    <section class="hero">
+      <div class="copy-container">
+        <h1>@teky.edu.vn</h1>
+    </section>
+
+    <section class="about anime-text-container">
+      <div class="copy-container">
+        <div class="anime-text">
+          <p>
+            Học viện công nghệ dành cho học sinh từ 5–18 tuổi, cung cấp các chương trình STEM đạt chuẩn quốc tế và các giải pháp EdTech sáng tạo. Teky giúp trẻ em phát triển tư duy công nghệ, trang bị kỹ năng thế kỷ 21 và trở thành thế hệ lãnh đạo tương lai.
+          </p>
+          <p>
+            Hơn 40.000 học sinh, hơn 100 cơ sở trên toàn quốc và hàng trăm giải thưởng quốc gia – quốc tế mỗi năm. Được xếp hạng trong Top 50 công ty EdTech hàng đầu Đông Nam Á, Teky sở hữu hệ sinh thái học tập toàn diện. Chúng tôi tự tin rằng với việc tiếp cận với công nghệ từ sớm là chìa khoá để định hướng nghề nghiệp tương lai cho học sinh.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+      <script>
+    // Gửi message khi scroll gần cuối (90%)
+    let scrollMessageSent = false;
+    window.addEventListener('scroll', () => {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      if (!scrollMessageSent && scrollTop + clientHeight >= scrollHeight * 0.9) {
+        window.parent.postMessage({ action: "finished-scroll" }, "*");
+        scrollMessageSent = true;
+      }
+    });
+
+  </script>
+  </body>
+</html>

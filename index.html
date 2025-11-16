@@ -6,272 +6,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>dctrng's Booth</title>
 
-  <!-- Favicon -->
   <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
   <link rel="stylesheet" href="StyleSheets/home.css" />
-  
+
   <style>
-    /* Modal Styles - Phù hợp với theme hiện tại */
-    .tutorial-modal {
-      display: none;
+    /* ================= Overlay Photobooth ================= */
+    #photobooth-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(5px);
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 9999;
+      background: #000;
+      opacity: 1;
+      transition: opacity 0.6s ease;
+      overflow: hidden;
     }
 
-    .tutorial-modal.show {
-      display: flex !important;
-    }
-
-    .modal-content {
-      background: #ffffff;
-      padding: clamp(1.5rem, 4vw, 2rem);
-      border-radius: 1rem;
-      max-width: min(90vw, 400px);
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
-      border: 2px solid #1e1e1e;
-      position: relative;
-    }
-
-    .modal-header {
-      text-align: center;
-      margin-bottom: clamp(1rem, 3vh, 1.5rem);
-    }
-
-    .modal-header h2 {
-      font-family: Castoro, serif;
-      font-size: clamp(1.3rem, 4vw, 1.5rem);
-      color: #555555;
-      margin: 0;
-      font-weight: 400;
-      line-height: 1.3;
-    }
-
-    .modal-body {
-      color: #666;
-      font-family: Castoro, serif;
-      line-height: 1.6;
-    }
-
-    .tutorial-step {
-      background: #f5f4f0;
-      padding: clamp(0.8rem, 2.5vw, 1rem);
-      border-radius: 0.5rem;
-      margin-bottom: clamp(0.8rem, 2vh, 1rem);
-      border: 1px solid #e0e0e0;
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-    .tutorial-step:hover {
-      transform: translateX(3px);
-      background: #ebe9e5;
-    }
-
-    .tutorial-step strong {
-      display: block;
-      font-size: clamp(0.95rem, 3vw, 1.1rem);
-      margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
-      color: #2a4a53;
-      line-height: 1.4;
-      font-weight: 400;
-    }
-
-    .tutorial-step span {
-      font-size: clamp(0.85rem, 2.5vw, 1rem);
-      line-height: 1.5;
-      display: block;
-      color: #666;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: clamp(0.8rem, 2vw, 1rem);
-      margin-top: clamp(1.2rem, 3vh, 1.5rem);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .modal-btn {
-      padding: clamp(0.6rem, 2vh, 0.8rem) clamp(1.2rem, 4vw, 2rem);
-      font-family: Castoro, serif;
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      border: 1px solid #1e1e1e;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-weight: 400;
-      flex: 1 1 auto;
-      min-width: clamp(100px, 25vw, 130px);
-      white-space: nowrap;
-    }
-
-    .btn-start {
-      background: #ffffff;
-      color: #555555;
-    }
-
-    .btn-start:hover {
-      transform: scale(1.05);
-    }
-
-    .btn-start:active {
-      transform: scale(0.98);
-    }
-
-    .btn-skip {
-      background: #f5f4f0;
-      color: #555555;
-      border: 1px solid #1e1e1e;
-    }
-
-    .btn-skip:hover {
-      transform: scale(1.05);
-    }
-
-    .btn-skip:active {
-      transform: scale(0.98);
-    }
-
-    .close-modal {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background: transparent;
+    #photobooth-iframe {
+      width: 100%; height: 100%;
       border: none;
-      color: #555555;
-      font-size: clamp(24px, 5vw, 30px);
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      cursor: pointer;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Nội dung chính ẩn ban đầu */
+    .home-container {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
-      line-height: 1;
-      font-family: Arial, sans-serif;
     }
 
-    .close-modal:hover {
-      background: #f0f0f0;
-      transform: rotate(90deg);
+    .home-container.visible {
+      opacity: 1;
     }
 
-    .close-modal:active {
-      transform: rotate(90deg) scale(0.95);
-    }
-
-    /* Small screens */
-    @media (max-width: 768px) {
-      .modal-content {
-        padding: clamp(1.2rem, 4vw, 1.5rem);
-        max-height: 90vh;
-      }
-
-      .tutorial-step:hover {
-        transform: translateX(2px);
-      }
-    }
-
-    /* Very small screens */
-    @media (max-width: 576px) {
-      .modal-content {
-        max-width: 92vw;
-      }
-
-      .modal-buttons {
-        flex-direction: column;
-        gap: 0.8rem;
-      }
-
-      .modal-btn {
-        width: 100%;
-        min-width: 100%;
-      }
-    }
-
-    /* Landscape orientation on mobile */
-    @media (max-height: 500px) and (orientation: landscape) {
-      .tutorial-modal {
-        align-items: flex-start;
-        padding: 10px;
-      }
-
-      .modal-content {
-        max-height: calc(100vh - 20px);
-        margin: 10px auto;
-      }
-
-      .modal-header {
-        margin-bottom: 0.8rem;
-      }
-
-      .tutorial-step {
-        padding: 0.6rem 0.8rem;
-        margin-bottom: 0.6rem;
-      }
-
-      .modal-buttons {
-        margin-top: 1rem;
-      }
-    }
-
-    /* Touch device optimizations */
-    @media (hover: none) and (pointer: coarse) {
-      .modal-btn,
-      .close-modal {
-        min-height: 44px;
-        min-width: 44px;
-      }
-
-      .tutorial-step:hover {
-        transform: none;
-        background: #f5f4f0;
-      }
-
-      .tutorial-step:active {
-        background: #ebe9e5;
-      }
-    }
-
-    /* Smooth scrolling for modal */
-    .modal-content {
-      scrollbar-width: thin;
-      scrollbar-color: #ccc #f5f4f0;
-    }
-
-    .modal-content::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .modal-content::-webkit-scrollbar-track {
-      background: #f5f4f0;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 4px;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb:hover {
-      background: #999;
+    body {
+      overflow: hidden;
     }
   </style>
 </head>
 
 <body>
+  <!-- ================= Overlay Photobooth ================= -->
+  <div id="photobooth-overlay">
+    <iframe id="photobooth-iframe" src="./dist/index.html" scrolling="yes"></iframe>
+  </div>
+
   <!-- Main Container -->
-  <div class="home-container">
+  <div class="home-container" id="main-content">
     <div class="photobooth-container">
       <div class="photobooth-mock"></div>
       <div class="photostrip-mock"></div>
@@ -289,34 +75,28 @@
   <!-- Tutorial Modal -->
   <div class="tutorial-modal" id="tutorialModal">
     <div class="modal-content">
-      <button class="close-modal" id="closeModal" aria-label="Đóng">&times;</button>
-      
+      <button class="close-modal" id="closeModal" aria-label="Đóng">×</button>
       <div class="modal-header">
         <h2>Hướng Dẫn Sử Dụng</h2>
       </div>
-
       <div class="modal-body">
         <div class="tutorial-step">
           <strong>📸 Bước 1: Chọn Chế Độ</strong>
           <span>Chọn Camera để chụp ảnh trực tiếp hoặc Upload để tải ảnh có sẵn</span>
         </div>
-
         <div class="tutorial-step">
           <strong>🎨 Bước 2: Tạo Photo Strip</strong>
           <span>Chụp 2 ảnh hoặc upload 2 ảnh để tạo photo strip của bạn</span>
         </div>
-
         <div class="tutorial-step">
           <strong>✨ Bước 3: Trang Trí</strong>
           <span>Thêm sticker, điều chỉnh kích thước và xoay để trang trí ảnh</span>
         </div>
-
         <div class="tutorial-step">
           <strong>💾 Bước 4: Chia Sẻ</strong>
           <span>Tải xuống hoặc tạo QR code để chia sẻ với bạn bè</span>
         </div>
       </div>
-
       <div class="modal-buttons">
         <button class="modal-btn btn-start" id="startBtn">Bắt Đầu</button>
         <button class="modal-btn btn-skip" id="skipBtn">Bỏ Qua</button>
@@ -326,25 +106,51 @@
 
   <!-- Main JS -->
   <script src="Javascripts/home.js"></script>
-  
-  <!-- Modal JS -->
+
+  <!-- ================= Iframe → Home Scroll Control ================= -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener("message", (event) => {
+      if (event.data.action === "finished-scroll") {
+        const overlay = document.getElementById("photobooth-overlay");
+        const mainContent = document.getElementById("main-content");
+
+        // 1. Ẩn iframe mượt mà
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          document.body.style.overflow = "auto";
+        }, 600);
+
+        // 2. Hiện trang chính
+        mainContent.classList.add("visible");
+
+        // 3. TỰ ĐỘNG SCROLL XUỐNG home-container
+        setTimeout(() => {
+          mainContent.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }, 700);
+      }
+    });
+  </script>
+
+  <!-- ================= Modal & Buttons JS ================= -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
       const modal = document.getElementById('tutorialModal');
       const selectButton = document.getElementById('select-button');
       const startBtn = document.getElementById('startBtn');
       const skipBtn = document.getElementById('skipBtn');
       const closeModalBtn = document.getElementById('closeModal');
 
-      // Show modal when Select button is clicked
       if (selectButton) {
         const newSelectButton = selectButton.cloneNode(true);
         selectButton.parentNode.replaceChild(newSelectButton, selectButton);
-        
-        newSelectButton.addEventListener('click', function(e) {
+
+        newSelectButton.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          
           if (modal) {
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -352,62 +158,33 @@
         }, true);
       }
 
-      // Go to menu page
       function goToMenu() {
         window.location.href = 'menu.html';
       }
 
-      // Close modal function
       function closeModal() {
         modal.classList.remove('show');
         document.body.style.overflow = '';
       }
 
-      // Event listeners
-      if (startBtn) {
-        startBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          goToMenu();
-        });
-      }
+      if (startBtn) startBtn.addEventListener('click', goToMenu);
+      if (skipBtn) skipBtn.addEventListener('click', goToMenu);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
 
-      if (skipBtn) {
-        skipBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          goToMenu();
-        });
-      }
-
-      if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          closeModal();
-        });
-      }
-
-      // Close modal when clicking outside
       if (modal) {
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal) {
-            closeModal();
-          }
+        modal.addEventListener('click', function (e) {
+          if (e.target === modal) closeModal();
         });
       }
 
-      // Close modal with ESC key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
-          closeModal();
-        }
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('show')) closeModal();
       });
 
-      // Prevent zoom on double tap
       let lastTouchEnd = 0;
-      document.addEventListener('touchend', function(e) {
+      document.addEventListener('touchend', function (e) {
         const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-          e.preventDefault();
-        }
+        if (now - lastTouchEnd <= 300) e.preventDefault();
         lastTouchEnd = now;
       }, false);
     });
