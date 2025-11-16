@@ -8,6 +8,10 @@
 
   <!-- Favicon -->
   <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
+  
+  <!-- QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
   <link rel="stylesheet" href="StyleSheets/final.css" />
 </head>
 
@@ -20,7 +24,7 @@
     <div class="menu-header" style="display: none;"></div>
     <div class="sticker-container">
       <h1>Add Stickers!</h1>
-      <p>(drag to reposition)</p>
+      <p>(drag to reposition, pinch to resize, double tap to delete)</p>
       <div class="sticker-btns">
         <button id="addFish" class="sticker-btn fish-btn">Add Fish</button>
         <button id="addOctopus" class="sticker-btn octopus-btn">Add Octopus</button>
@@ -38,7 +42,32 @@
 
   <div class="button-container">
     <button id="downloadBtn">Download</button>
+    <button id="shareBtn">Share QR</button>
+    <button id="scanBtn">Scan QR</button>
     <button id="homeBtn">Home</button>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <span id="qrClose" class="modal-close">&times;</span>
+      <h2>📤 Share Your Photo</h2>
+      <p class="modal-text">Scan this QR code to view the photo!</p>
+      <div id="qrCodeContainer"></div>
+      <canvas id="qrCanvas" width="256" height="256"></canvas>
+      <p class="modal-footer">Others can scan this code to see your creation!</p>
+    </div>
+  </div>
+
+  <!-- Scan QR Modal -->
+  <div id="scanModal" class="modal">
+    <div class="modal-content">
+      <span id="scanClose" class="modal-close">&times;</span>
+      <h2>📷 View Shared Photo</h2>
+      <p class="modal-text">Enter the photo ID from QR code:</p>
+      <input type="text" id="scanInput" placeholder="photo_1234567890">
+      <button id="scanSubmitBtn" class="modal-btn">View Photo</button>
+    </div>
   </div>
 
   <script type="module" src="Javascripts/final.js"></script>

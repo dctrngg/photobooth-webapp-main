@@ -72,6 +72,11 @@ canvas {
   background: #fff;
   cursor: grab;
   display: block;
+  touch-action: none; /* Better touch handling */
+}
+
+canvas:active {
+  cursor: grabbing;
 }
 
 /* sticker buttons container */
@@ -95,6 +100,7 @@ canvas {
   justify-content: center;
   gap: 20px;
   padding-top: 2vh;
+  flex-wrap: wrap;
 }
 
 /* buttons */
@@ -113,6 +119,10 @@ button {
 
 button:hover {
   transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 /* sticker buttons */
@@ -167,4 +177,170 @@ button:hover {
   background-repeat: no-repeat;
   background-position: center;
   margin: 0;
+}
+
+/* ============================================ */
+/* MODAL STYLES */
+/* ============================================ */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+  border: 2px solid #1e1e1e;
+}
+
+.modal-content h2 {
+  font-family: Castoro, serif;
+  font-size: 1.5rem;
+  color: #555555;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.modal-text {
+  font-family: Castoro, serif;
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.modal-footer {
+  font-family: Castoro, serif;
+  font-size: 0.9rem;
+  color: #999;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 30px;
+  cursor: pointer;
+  color: #555555;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+  font-family: Arial, sans-serif;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: #f0f0f0;
+  transform: rotate(90deg);
+}
+
+#qrCanvas {
+  margin: 1rem auto;
+  border-radius: 0.5rem;
+  background: white;
+  padding: 10px;
+  border: 1px solid #ddd;
+  display: block;
+}
+
+#qrCodeContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 256px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #1e1e1e;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #555555;
+  margin-bottom: 1rem;
+  font-family: Castoro, serif;
+  box-sizing: border-box;
+}
+
+.modal input::placeholder {
+  color: #999;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: #555555;
+}
+
+.modal-btn {
+  padding: 0.8rem 2rem;
+  font-size: 1.2rem;
+  border: 1px solid #1e1e1e;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #555555;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: Castoro, serif;
+  font-weight: 400;
+}
+
+.modal-btn:hover {
+  transform: scale(1.05);
+  background: #f8f8f8;
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+/* Mobile responsive for modals */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 85%;
+    padding: 1.5rem;
+  }
+
+  .modal-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .modal-text {
+    font-size: 0.9rem;
+  }
+
+  #qrCanvas {
+    width: 200px;
+    height: 200px;
+  }
+
+  .button-container {
+    gap: 10px;
+  }
+
+  button {
+    font-size: 1rem;
+    padding: 0.3rem 0.4rem;
+  }
 }

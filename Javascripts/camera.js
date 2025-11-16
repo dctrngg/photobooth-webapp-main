@@ -86,7 +86,16 @@ const capturePhoto = () => {
     sy = (vH - sh) / 2;
   }
 
+  // Flip canvas nếu đang dùng camera trước
+  ctx.save();
+  if (currentFacing === "user") {
+    ctx.translate(WIDTH, 0);
+    ctx.scale(-1, 1);
+  }
+
   ctx.drawImage(video, sx, sy, sw, sh, 0, yOffset, WIDTH, HALF);
+
+  ctx.restore();
 
   photoStage++;
 

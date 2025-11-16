@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Shared Photo - Fish Photobooth</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Castoro, serif;
+      background-color: #f5f4f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: #555555;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #555555;
+      font-weight: 400;
+    }
+
+    .photo-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      border: 1px solid #e0e0e0;
+    }
+
+    #sharedPhoto {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .message {
+      font-size: 1.2rem;
+      margin: 1.5rem 0;
+      color: #666;
+    }
+
+    .error {
+      color: #d63031;
+      font-size: 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .loading {
+      font-size: 1.3rem;
+      color: #666;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: Castoro, serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #555555;
+      background-color: #fff;
+      border: 1px solid #1e1e1e;
+      border-radius: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .photo-container {
+        padding: 1rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐠 Shared Photo 🐠</h1>
+    
+    <div id="content">
+      <div class="loading">Loading photo...</div>
+    </div>
+
+    <div class="button-container">
+      <button onclick="window.location.href='index.html'">
+        🏠 Home
+      </button>
+      
+      <button onclick="window.location.href='camera.html'">
+        📸 Create Your Own
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Get photo ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const photoId = urlParams.get('id');
+    const contentDiv = document.getElementById('content');
+
+    if (photoId) {
+      // Load photo from localStorage
+      const photoData = localStorage.getItem(photoId);
+      
+      if (photoData) {
+        contentDiv.innerHTML = `
+          <div class="photo-container">
+            <img id="sharedPhoto" src="${photoData}" alt="Shared Photo">
+          </div>
+          <p class="message">✨ Amazing photo! ✨</p>
+        `;
+      } else {
+        contentDiv.innerHTML = `
+          <p class="error">😔 Photo not found</p>
+          <p class="message">This photo may have been deleted or the link is incorrect.</p>
+        `;
+      }
+    } else {
+      contentDiv.innerHTML = `
+        <p class="error">❌ No photo ID provided</p>
+        <p class="message">Please scan a valid QR code or use a correct link.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
