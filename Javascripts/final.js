@@ -63,11 +63,37 @@ function drawCanvas() {
     ctx.rotate(s.rotation * Math.PI / 180);
     ctx.drawImage(s.img, -s.width / 2, -s.height / 2, s.width, s.height);
     
-    // Draw selection border
+    // Draw selection border with corner handles
     if (s === selectedSticker) {
       ctx.strokeStyle = '#555555';
       ctx.lineWidth = 3;
+      ctx.setLineDash([10, 5]);
       ctx.strokeRect(-s.width / 2, -s.height / 2, s.width, s.height);
+      ctx.setLineDash([]);
+      
+      // Draw corner handles
+      const handleSize = 20;
+      ctx.fillStyle = '#555555';
+      
+      // Top-left
+      ctx.fillRect(-s.width / 2 - handleSize/2, -s.height / 2 - handleSize/2, handleSize, handleSize);
+      // Top-right
+      ctx.fillRect(s.width / 2 - handleSize/2, -s.height / 2 - handleSize/2, handleSize, handleSize);
+      // Bottom-left
+      ctx.fillRect(-s.width / 2 - handleSize/2, s.height / 2 - handleSize/2, handleSize, handleSize);
+      // Bottom-right
+      ctx.fillRect(s.width / 2 - handleSize/2, s.height / 2 - handleSize/2, handleSize, handleSize);
+      
+      // Draw rotation indicator at top
+      ctx.beginPath();
+      ctx.arc(0, -s.height / 2 - 30, 8, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#555555';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -s.height / 2);
+      ctx.lineTo(0, -s.height / 2 - 22);
+      ctx.stroke();
     }
     ctx.restore();
   });
@@ -78,15 +104,17 @@ function addSticker(src) {
   const img = new Image();
   img.src = src;
   img.onload = () => {
-    stickers.push({
+    const newSticker = {
       img,
-      x: WIDTH / 2 - img.width / 6,
-      y: HEIGHT / 2 - img.height / 6,
-      width: img.width / 2.5,
-      height: img.height / 2.5,
+      x: WIDTH / 2 - img.width / 3,
+      y: HEIGHT / 2 - img.height / 3,
+      width: img.width / 1.5, // Larger default size
+      height: img.height / 1.5,
       rotation: 0,
       dragging: false
-    });
+    };
+    stickers.push(newSticker);
+    selectedSticker = newSticker; // Auto-select new sticker
     drawCanvas();
   };
 }
@@ -157,35 +185,61 @@ function pointerDown(e) {
     lastTapTime = now;
   }
   
-  // Select sticker
-  for (let i = stickers.length - 1; i >= 0; i--) {
-    const s = stickers[i];
-    if (isPointInSticker(mouseX, mouseY, s)) {
-      selectedSticker = s;
-      s.dragging = true;
-      dragOffset.x = mouseX - s.x;
-      dragOffset.y = mouseY - s.y;
-      stickers.splice(i, 1);
-      stickers.push(s);
-      
-      if (e.touches && e.touches.length === 2) {
-        initialPinchDistance = getTouchDistance(e);
-        initialRotation = getTouchAngle(e);
-        initialSize = { width: s.width, height: s.height };
+  // Multi-touch on selected sticker - start resize/rotate
+  if (e.touches && e.touches.length === 2 && selectedSticker) {
+    initialPinchDistance = getTouchDistance(e);
+    initialRotation = getTouchAngle(e);
+    initialSize = { width: selectedSticker.width, height: selectedSticker.height };
+    e.preventDefault();
+    return;
+  }
+  
+  // Single touch - select or drag sticker
+  if (e.touches && e.touches.length === 1) {
+    for (let i = stickers.length - 1; i >= 0; i--) {
+      const s = stickers[i];
+      if (isPointInSticker(mouseX, mouseY, s)) {
+        selectedSticker = s;
+        s.dragging = true;
+        dragOffset.x = mouseX - s.x;
+        dragOffset.y = mouseY - s.y;
+        stickers.splice(i, 1);
+        stickers.push(s);
+        drawCanvas();
+        e.preventDefault();
+        return;
       }
-      
-      drawCanvas();
-      e.preventDefault();
-      break;
     }
+    // Clicked empty space - deselect
+    selectedSticker = null;
+    drawCanvas();
+  }
+  
+  // Mouse click - select or drag
+  if (!e.touches) {
+    for (let i = stickers.length - 1; i >= 0; i--) {
+      const s = stickers[i];
+      if (isPointInSticker(mouseX, mouseY, s)) {
+        selectedSticker = s;
+        s.dragging = true;
+        dragOffset.x = mouseX - s.x;
+        dragOffset.y = mouseY - s.y;
+        stickers.splice(i, 1);
+        stickers.push(s);
+        drawCanvas();
+        e.preventDefault();
+        return;
+      }
+    }
+    // Clicked empty space - deselect
+    selectedSticker = null;
+    drawCanvas();
   }
 }
 
 function pointerMove(e) {
-  if (!selectedSticker?.dragging) return;
-  
-  // Multi-touch: pinch to zoom + rotate
-  if (e.touches && e.touches.length === 2) {
+  // Multi-touch: pinch to zoom + rotate (works on selected sticker anywhere)
+  if (e.touches && e.touches.length === 2 && selectedSticker) {
     const currentDistance = getTouchDistance(e);
     const currentAngle = getTouchAngle(e);
     
@@ -198,20 +252,29 @@ function pointerMove(e) {
       selectedSticker.rotation += angleDiff;
       initialRotation = currentAngle;
     }
-  } else {
-    // Single touch/mouse: drag
+    
+    drawCanvas();
+    e.preventDefault();
+    return;
+  }
+  
+  // Single touch/mouse: drag
+  if (selectedSticker?.dragging) {
     const { x: mouseX, y: mouseY } = getPointerPos(e);
     selectedSticker.x = mouseX - dragOffset.x;
     selectedSticker.y = mouseY - dragOffset.y;
+    drawCanvas();
+    e.preventDefault();
   }
-  
-  drawCanvas();
-  e.preventDefault();
 }
 
-function pointerUp() { 
+function pointerUp(e) { 
   if (selectedSticker) {
     selectedSticker.dragging = false;
+  }
+  
+  // Reset pinch state when lifting fingers
+  if (!e.touches || e.touches.length < 2) {
     initialPinchDistance = 0;
   }
 }
