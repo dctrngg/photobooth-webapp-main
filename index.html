@@ -47,6 +47,8 @@
     body {
       overflow: hidden;
     }
+
+  
   </style>
 </head>
 
@@ -67,8 +69,10 @@
       <div class="fish-mock-3"></div>
     </div>
 
+    <!-- ================= 2 NÚT: SELECT + MEMORY ================= -->
     <div class="button-container">
-      <button id="select-button">Select</button>
+      <button id="select-button">Chụp ảnh photobooth</button>
+      <button id="memory-button">Khoảnh khắc Teky</button>
     </div>
   </div>
 
@@ -81,19 +85,19 @@
       </div>
       <div class="modal-body">
         <div class="tutorial-step">
-          <strong>📸 Bước 1: Chọn Chế Độ</strong>
+          <strong>Bước 1: Chọn Chế Độ</strong>
           <span>Chọn Camera để chụp ảnh trực tiếp hoặc Upload để tải ảnh có sẵn</span>
         </div>
         <div class="tutorial-step">
-          <strong>🎨 Bước 2: Tạo Photo Strip</strong>
+          <strong>Bước 2: Tạo Photo Strip</strong>
           <span>Chụp 2 ảnh hoặc upload 2 ảnh để tạo photo strip của bạn</span>
         </div>
         <div class="tutorial-step">
-          <strong>✨ Bước 3: Trang Trí</strong>
+          <strong>Bước 3: Trang Trí</strong>
           <span>Thêm sticker, điều chỉnh kích thước và xoay để trang trí ảnh</span>
         </div>
         <div class="tutorial-step">
-          <strong>💾 Bước 4: Chia Sẻ</strong>
+          <strong>Bước 4: Chia Sẻ</strong>
           <span>Tải xuống hoặc tạo QR code để chia sẻ với bạn bè</span>
         </div>
       </div>
@@ -114,17 +118,14 @@
         const overlay = document.getElementById("photobooth-overlay");
         const mainContent = document.getElementById("main-content");
 
-        // 1. Ẩn iframe mượt mà
         overlay.style.opacity = "0";
         setTimeout(() => {
           overlay.style.display = "none";
           document.body.style.overflow = "auto";
         }, 600);
 
-        // 2. Hiện trang chính
         mainContent.classList.add("visible");
 
-        // 3. TỰ ĐỘNG SCROLL XUỐNG home-container
         setTimeout(() => {
           mainContent.scrollIntoView({
             behavior: "smooth",
@@ -135,15 +136,17 @@
     });
   </script>
 
-  <!-- ================= Modal & Buttons JS ================= -->
+  <!-- ================= Modal & Buttons JS (ĐÃ THÊM NÚT MEMORY) ================= -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const modal = document.getElementById('tutorialModal');
       const selectButton = document.getElementById('select-button');
+      const memoryButton = document.getElementById('memory-button'); 
       const startBtn = document.getElementById('startBtn');
       const skipBtn = document.getElementById('skipBtn');
       const closeModalBtn = document.getElementById('closeModal');
 
+      // === NÚT SELECT (giữ nguyên) ===
       if (selectButton) {
         const newSelectButton = selectButton.cloneNode(true);
         selectButton.parentNode.replaceChild(newSelectButton, selectButton);
@@ -158,6 +161,14 @@
         }, true);
       }
 
+      // === NÚT MEMORY (MỚI) – CHUYỂN THẲNG memory.html ===
+      if (memoryButton) {
+        memoryButton.addEventListener('click', function () {
+          window.location.href = 'memory.html';
+        });
+      }
+
+      // === Modal Actions ===
       function goToMenu() {
         window.location.href = 'menu.html';
       }

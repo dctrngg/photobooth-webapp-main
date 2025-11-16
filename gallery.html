@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Photobooth</title>
+    <link rel="stylesheet" href="StyleSheets/gallery.css" />
+</head>
+
+<body>
+    <div class="header">
+        <h1 id="title">Gallery</h1>
+        <div class="controls">
+            <button class="btn btn-refresh" id="refreshBtn">Làm mới</button>
+            <a href="#" class="btn btn-camera" id="cameraBtn">Chụp thêm</a>
+            <a href="index.html" class="btn btn-home">Trang chủ</a>
+        </div>
+        <div class="status" id="status">Đang tải ảnh...</div>
+    </div>
+    <div class="gallery" id="gallery"></div>
+    <div class="empty" id="empty" style="display: none;">
+        <h2>Chưa có ảnh nào</h2>
+        <p>Hãy chụp ảnh đầu tiên!</p>
+        <a href="#" class="btn btn-camera" id="firstBtn" style="padding: 15px 40px; font-size: 1.1em;">Bắt đầu chụp</a>
+    </div>
+    <div class="modal" id="modal">
+        <span class="close-modal" id="closeModal">×</span>
+        <div class="modal-content"><img id="modalImg" src="" alt="Full size"></div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            SHEET_API_URL: 'https://script.google.com/macros/s/AKfycby3FqIIsC3cRT5CIXllLsHIlfWA4owQdvxGJRXbPAqlsvr1rI7eGKAFOOZCPvjxxQa0/exec'
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicId = urlParams.get('topic') || 'default';
+        const topics = JSON.parse(localStorage.getItem('TOPICS_CONFIG') || '[]');
+        const topic = topics.find(t => t.id === topicId);
+        if (topic) document.getElementById('title').textContent = ` ${topic.name}`;
+        document.getElementById('cameraBtn').href = `topic.html?topic=${topicId}`;
+        document.getElementById('firstBtn').href = `topic.html?topic=${topicId}`;
+
+        const gallery = document.getElementById('gallery');
+        const status = document.getElementById('status');
+        const empty = document.getElementById('empty');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modalImg');
+        const closeModal = document.getElementById('closeModal');
+
+        const updateStatus = (msg, type = '') => { status.className = `status ${type}`; status.innerHTML = msg; };
+
+       const createCard = (photo, i) => {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+
+    // Ưu tiên thumb, nếu lỗi → dùng ảnh gốc
+    const thumb = photo.thumbUrl || photo.imageUrl;
+
+    card.innerHTML = `
+        <img src="${thumb}" 
+             data-full="${photo.imageUrl}" 
+             alt="Photo ${i + 1}" 
+             loading="lazy" 
+             width="280" height="280"
+             style="image-rendering: -webkit-optimize-contrast;">
+        <div class="photo-actions">
+            <a href="${photo.imageUrl}" download class="btn-download">Tải</a>
+            <a href="${photo.imageUrl}" target="_blank" class="btn-view">Xem</a>
+        </div>
+    `;
+
+    const img = card.querySelector('img');
+    img.addEventListener('click', () => {
+        modalImg.src = photo.imageUrl;
+        modal.classList.add('active');
+    });
+
+    // Nếu thumb mờ → tự động dùng ảnh gốc (vẫn nhanh vì đã cache)
+    img.onerror = () => img.src = photo.imageUrl;
+
+    return card;
+};
+        const load = async () => {
+    try {
+        updateStatus('<span class="spinner"></span>Đang tải...', 'loading');
+        
+        // LOG: URL gọi API
+        const url = `${CONFIG.SHEET_API_URL}?topic=${topicId}&t=${Date.now()}`;
+        console.log('🔍 Gọi API URL:', url);
+        console.log('🔍 Topic ID:', topicId);
+
+        const res = await fetch(url);
+        console.log('🔍 Response status:', res.status);
+        
+        if (!res.ok) throw new Error(`HTTP ${res.status} - Kiểm tra deploy Apps Script`);
+
+        const text = await res.text();
+        console.log('🔍 Raw JSON response:', text);
+
+        const data = JSON.parse(text);
+        console.log('🔍 Parsed data:', data);
+        console.log('🔍 Photos array:', data.photos);
+
+        if (!data.success) throw new Error(data.error || 'Lỗi server - Kiểm tra Executions log');
+
+        const photos = data.photos || [];
+        console.log('🔍 Số lượng ảnh:', photos.length);
+        
+        gallery.innerHTML = '';
+
+        if (photos.length === 0) {
+            console.log('⚠️ Không có ảnh - Kiểm tra topic trong Sheet');
+            status.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+
+        status.style.display = 'none';
+        empty.style.display = 'none';
+
+        photos.forEach((photo, i) => {
+            console.log(`🔍 Ảnh ${i + 1}:`, photo);
+            if (photo.imageUrl) {
+                gallery.appendChild(createCard(photo, i));
+            } else {
+                console.log('⚠️ Ảnh thiếu imageUrl:', photo);
+            }
+        });
+
+        console.log('✅ Đã render', photos.length, 'ảnh');
+
+    } catch (err) {
+        console.error('❌ LỖI CHI TIẾT:', err);
+        updateStatus(`Lỗi: ${err.message} - Xem Console F12`, 'error');
+    }
+};
+
+        refreshBtn.addEventListener('click', load);
+        closeModal.addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('active'); });
+        setInterval(load, 10000);
+        load();
+    </script>
+</body>
+
+</html>

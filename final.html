@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decorate & Download</title>
+  <title>Trang trí & Tải xuống</title>
 
   <!-- Favicon -->
   <link rel="icon" href="Assets/fish-photobooth/favicon.png" type="image/x-icon" />
@@ -23,15 +23,15 @@
   <div class="heading-content">
     <div class="menu-header" style="display: none;"></div>
     <div class="sticker-container">
-      <h1>Add Stickers!</h1>
-      <p>(tap to select • pinch anywhere to resize • double tap to delete)</p>
+      <h1>Thêm Nhãn dán!</h1>
+      <p>(chạm để chọn • chụm để thay đổi kích thước • chạm đúp để xóa)</p>
       <div class="sticker-btns">
-        <button id="addFish" class="sticker-btn fish-btn">Add Fish</button>
-        <button id="addOctopus" class="sticker-btn octopus-btn">Add Octopus</button>
-        <button id="addSeaweed" class="sticker-btn seaweed-btn">Add Seaweed</button>
-        <button id="addAx" class="sticker-btn axolotl-btn">Add Axolotl</button>
-        <button id="addBubble" class="sticker-btn bubble-btn">Add Bubble</button>
-        <button id="reset" class="sticker-btn reset-btn">Reset</button>
+        <button id="addFish" class="sticker-btn fish-btn">Thêm Cá</button>
+        <button id="addOctopus" class="sticker-btn octopus-btn">Thêm Bạch Tuộc</button>
+        <button id="addSeaweed" class="sticker-btn seaweed-btn">Thêm Rong Biển</button>
+        <button id="addAx" class="sticker-btn axolotl-btn">Thêm Axolotl</button>
+        <button id="addBubble" class="sticker-btn bubble-btn">Thêm Bọt</button>
+        <button id="reset" class="sticker-btn reset-btn">Đặt lại</button>
       </div>
     </div>
   </div>
@@ -41,21 +41,21 @@
   </div>
 
   <div class="button-container">
-    <button id="downloadBtn">Download</button>
-    <button id="shareBtn">Share QR</button>
-    <button id="scanBtn">Scan QR</button>
-    <button id="homeBtn">Home</button>
+    <button id="downloadBtn">Tải xuống</button>
+    <button id="shareBtn">Chia sẻ QR</button>
+    <button id="scanBtn">Quét QR</button>
+    <button id="homeBtn">Trang chủ</button>
   </div>
 
   <!-- QR Code Modal -->
   <div id="qrModal" class="modal">
     <div class="modal-content">
       <span id="qrClose" class="modal-close">&times;</span>
-      <h2>📤 Share Your Photo</h2>
-      <p class="modal-text">Scan this QR code to view the photo!</p>
+      <h2>📤 Chia sẻ Ảnh của bạn</h2>
+      <p class="modal-text">Quét mã QR này để xem ảnh!</p>
       <div id="qrCodeContainer"></div>
       <canvas id="qrCanvas" width="256" height="256"></canvas>
-      <p class="modal-footer">Others can scan this code to see your creation!</p>
+      <p class="modal-footer">Người khác có thể quét mã này để xem tác phẩm của bạn!</p>
     </div>
   </div>
 
@@ -63,10 +63,10 @@
   <div id="scanModal" class="modal">
     <div class="modal-content">
       <span id="scanClose" class="modal-close">&times;</span>
-      <h2>📷 View Shared Photo</h2>
-      <p class="modal-text">Enter the photo ID from QR code:</p>
+      <h2>📷 Xem Ảnh Đã Chia Sẻ</h2>
+      <p class="modal-text">Nhập ID ảnh từ mã QR:</p>
       <input type="text" id="scanInput" placeholder="photo_1234567890">
-      <button id="scanSubmitBtn" class="modal-btn">View Photo</button>
+      <button id="scanSubmitBtn" class="modal-btn">Xem Ảnh</button>
     </div>
   </div>
 

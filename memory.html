@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khoảnh khắc Teky</title>
+      <link rel="stylesheet" href="StyleSheets/memory.css" />
+        <style>
+    /* ================= Overlay Photobooth ================= */
+    #photobooth-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 9999;
+      background: #000;
+      opacity: 1;
+      transition: opacity 0.6s ease;
+      overflow: hidden;
+    }
+
+    #photobooth-iframe {
+      width: 100%; height: 100%;
+      border: none;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Nội dung chính ẩn ban đầu */
+    .home-container {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-container.visible {
+      opacity: 1;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+  
+  </style>
+</head>
+
+<body>
+
+      <!-- ================= Overlay Photobooth ================= -->
+  <div id="photobooth-overlay">
+    <iframe id="photobooth-iframe" src="./memoryOverlay/index.html" scrolling="yes"></iframe>
+  </div>
+    <div class="container">
+        <h1>Khoảnh khắc Teky</h1>
+        <div class="topics-grid" id="topicsGrid"></div>
+    </div>
+
+      <script>
+    window.addEventListener("message", (event) => {
+      if (event.data.action === "finished-scroll") {
+        const overlay = document.getElementById("photobooth-overlay");
+        const mainContent = document.getElementById("main-content");
+
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          document.body.style.overflow = "auto";
+        }, 600);
+
+        mainContent.classList.add("visible");
+
+        setTimeout(() => {
+          mainContent.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }, 700);
+      }
+    });
+  </script>
+    <script>
+        const TOPICS = [
+            { id: 'birthday', name: 'Sinh Nhật', description: 'Chụp ảnh sinh nhật vui vẻ', emoji: 'Birthday Cake', framePath: 'Assets/fish-photobooth/camerapage/frame.png' },
+            { id: '2011', name: 'Ngày Nhà Giáo Việt Nam', description: 'Chúc mừng ngày nhà giáo việt nam', emoji: 'Teacher', framePath: 'Assets/fish-photobooth/camerapage/teky3.png' },
+            { id: 'christmas', name: 'Giáng Sinh', description: 'Chụp ảnh Giáng Sinh ấm áp', emoji: 'Christmas Tree', framePath: 'Assets/fish-photobooth/camerapage/teky2.png' },
+            { id: 'newyear', name: 'Năm Mới', description: 'Chụp ảnh chúc mừng năm mới', emoji: 'Party Popper', framePath: 'Assets/fish-photobooth/camerapage/teky1.png' }
+        ];
+
+        const grid = document.getElementById('topicsGrid');
+        TOPICS.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div class="topic-image">${topic.emoji}</div>
+                <div class="topic-info">
+                    <h2 class="topic-name">${topic.name}</h2>
+                    <p class="topic-desc">${topic.description}</p>
+                    <div class="topic-actions">
+                        <a href="topic.html?topic=${topic.id}" class="btn btn-camera">Chụp ảnh</a>
+                        <a href="gallery.html?topic=${topic.id}" class="btn btn-gallery">Xem ảnh</a>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        localStorage.setItem('TOPICS_CONFIG', JSON.stringify(TOPICS));
+    </script>
+</body>
+
+</html>
