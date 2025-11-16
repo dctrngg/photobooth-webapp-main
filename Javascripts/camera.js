@@ -16,11 +16,17 @@ const elements = {
   takePhotoBtn: document.getElementById("takePhoto"),
   toggleCameraBtn: document.getElementById("toggleCamera"),
   countdownEl: document.querySelector(".countdown-timer"),
+  zoomSlider: document.getElementById("zoomSlider"),
+  zoomValue: document.getElementById("zoomValue"),
+  zoomIn: document.getElementById("zoomIn"),
+  zoomOut: document.getElementById("zoomOut"),
 };
 
 let photoStage = 0; // 0=top,1=bottom,2=done
 let currentFacing = "user"; // "user" = front, "environment" = back
 let stream = null;
+let currentZoom = 1; // Zoom level (1 = no zoom)
+let videoTrack = null; // Current video track for zoom capabilities
 
 // ======================================================
 // Move video to top/bottom half
@@ -54,6 +60,77 @@ const startCountdown = (callback) => {
 };
 
 // ======================================================
+// Apply zoom to video (hardware zoom if supported)
+// ======================================================
+const applyZoom = async (zoomLevel) => {
+  if (!videoTrack) return;
+
+  const capabilities = videoTrack.getCapabilities();
+  
+  // Check if device supports hardware zoom
+  if (capabilities.zoom) {
+    const { min, max } = capabilities.zoom;
+    const clampedZoom = Math.max(min, Math.min(max, zoomLevel));
+    
+    try {
+      await videoTrack.applyConstraints({
+        advanced: [{ zoom: clampedZoom }]
+      });
+      currentZoom = clampedZoom;
+      
+      if (elements.zoomValue) {
+        elements.zoomValue.textContent = `${clampedZoom.toFixed(1)}x`;
+      }
+      if (elements.zoomSlider) {
+        elements.zoomSlider.value = clampedZoom;
+      }
+    } catch (err) {
+      console.warn("Zoom constraint failed:", err);
+    }
+  } else {
+    // Fallback: CSS transform zoom (visual only)
+    currentZoom = zoomLevel;
+    elements.video.style.transform = 
+      currentFacing === "user" 
+        ? `scaleX(-1) scale(${zoomLevel})` 
+        : `scale(${zoomLevel})`;
+    
+    if (elements.zoomValue) {
+      elements.zoomValue.textContent = `${zoomLevel.toFixed(1)}x`;
+    }
+    if (elements.zoomSlider) {
+      elements.zoomSlider.value = zoomLevel;
+    }
+  }
+};
+
+// ======================================================
+// Setup zoom controls
+// ======================================================
+const setupZoomControls = () => {
+  if (!videoTrack) return;
+
+  const capabilities = videoTrack.getCapabilities();
+  
+  if (elements.zoomSlider) {
+    if (capabilities.zoom) {
+      // Hardware zoom available
+      const { min, max } = capabilities.zoom;
+      elements.zoomSlider.min = min;
+      elements.zoomSlider.max = max;
+      elements.zoomSlider.step = (max - min) / 20; // 20 steps
+      elements.zoomSlider.value = currentZoom;
+    } else {
+      // Software zoom fallback
+      elements.zoomSlider.min = 1;
+      elements.zoomSlider.max = 3;
+      elements.zoomSlider.step = 0.1;
+      elements.zoomSlider.value = 1;
+    }
+  }
+};
+
+// ======================================================
 // Capture photo into canvas
 // ======================================================
 const capturePhoto = () => {
@@ -84,6 +161,18 @@ const capturePhoto = () => {
     sh = vW / targetAspect;
     sx = 0;
     sy = (vH - sh) / 2;
+  }
+
+  // Apply zoom to capture area (if using software zoom)
+  const capabilities = videoTrack?.getCapabilities();
+  if (!capabilities?.zoom && currentZoom > 1) {
+    const zoomFactor = 1 / currentZoom;
+    const newW = sw * zoomFactor;
+    const newH = sh * zoomFactor;
+    sx += (sw - newW) / 2;
+    sy += (sh - newH) / 2;
+    sw = newW;
+    sh = newH;
   }
 
   // Flip canvas nếu đang dùng camera trước
@@ -140,7 +229,7 @@ const setupCamera = async () => {
   try {
     const constraints = {
       video: {
-        facingMode: currentFacing, // Safari requires DIRECT string
+        facingMode: currentFacing,
         width: { ideal: 1920 },
         height: { ideal: 1080 },
       },
@@ -148,11 +237,15 @@ const setupCamera = async () => {
     };
 
     stream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoTrack = stream.getVideoTracks()[0];
 
     elements.video.srcObject = stream;
 
     elements.video.onloadedmetadata = () => {
       elements.video.play();
+
+      // Setup zoom controls after video is ready
+      setupZoomControls();
 
       // Flip only front camera
       if (currentFacing === "user") {
@@ -173,14 +266,32 @@ const setupCamera = async () => {
 // ======================================================
 const toggleCamera = () => {
   currentFacing = currentFacing === "user" ? "environment" : "user";
+  currentZoom = 1; // Reset zoom when switching cameras
   setupCamera();
+};
+
+// ======================================================
+// Zoom in/out functions
+// ======================================================
+const zoomIn = () => {
+  const step = parseFloat(elements.zoomSlider.step) || 0.1;
+  const max = parseFloat(elements.zoomSlider.max) || 3;
+  const newZoom = Math.min(currentZoom + step, max);
+  applyZoom(newZoom);
+};
+
+const zoomOut = () => {
+  const step = parseFloat(elements.zoomSlider.step) || 0.1;
+  const min = parseFloat(elements.zoomSlider.min) || 1;
+  const newZoom = Math.max(currentZoom - step, min);
+  applyZoom(newZoom);
 };
 
 // ======================================================
 // Event listeners
 // ======================================================
 const setupEventListeners = () => {
-  const { takePhotoBtn, toggleCameraBtn } = elements;
+  const { takePhotoBtn, toggleCameraBtn, zoomSlider, zoomIn: zoomInBtn, zoomOut: zoomOutBtn } = elements;
 
   takePhotoBtn.addEventListener("click", () => {
     if (photoStage > 1) return;
@@ -190,6 +301,23 @@ const setupEventListeners = () => {
   });
 
   toggleCameraBtn.addEventListener("click", toggleCamera);
+
+  // Zoom slider
+  if (zoomSlider) {
+    zoomSlider.addEventListener("input", (e) => {
+      const zoomLevel = parseFloat(e.target.value);
+      applyZoom(zoomLevel);
+    });
+  }
+
+  // Zoom buttons
+  if (zoomInBtn) {
+    zoomInBtn.addEventListener("click", zoomIn);
+  }
+
+  if (zoomOutBtn) {
+    zoomOutBtn.addEventListener("click", zoomOut);
+  }
 
   window.addEventListener("resize", () => moveVideoToHalf(photoStage));
 };
