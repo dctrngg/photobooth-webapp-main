@@ -1,0 +1,11 @@
+# Bật Pretty URLs để bỏ .html
+permalink: pretty
+
+# Tắt build theme mặc định (nếu không dùng)
+theme: null
+
+# (Tùy chọn) Loại bỏ các file không cần thiết
+exclude:
+  - README.md
+  - node_modules
+  - package.json
