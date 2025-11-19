@@ -182,12 +182,12 @@
         const proxyUrl = `${CONFIG.PROXY}${encodeURIComponent(apiUrl)}`;
 
         const res = await fetch(proxyUrl);
-        if (!res.ok) throw new Error(`Proxy lỗi: ${res.status}`);
+        if (!res.ok) throw new Error(`Hình ảnh đang được xử lý`);
 
         const proxyData = await res.json();
         const data = JSON.parse(proxyData.contents);
 
-        if (!data.success) throw new Error(data.error || 'Lỗi server');
+        if (!data.success) throw new Error('Hình ảnh đang được xử lý');
 
         photos = (data.photos || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
